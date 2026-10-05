@@ -1,0 +1,58 @@
+@model PlannerVm
+<h1>Máy tính chi phí sự kiện</h1>
+
+<form method="get">
+  <label>Sự kiện</label>
+  <select name="eventId" onchange="this.form.submit()">
+    @foreach (var e in Model.Events)
+    {
+      <option value="@e.Id" selected="@(e.Id == Model.EventId)">@e.Name</option>
+    }
+  </select>
+  <noscript><button>Tải sự kiện</button></noscript>
+</form>
+
+<form method="post">
+  <input type="hidden" asp-for="EventId" />
+  <table>
+    <tr><th>Món</th><th>Chi phí / lần</th><th>Điểm / lần</th><th>Tối đa (trống = vô hạn)</th></tr>
+    @for (int i = 0; i < Model.Items.Count; i++)
+    {
+      <tr>
+        <td><input asp-for="Items[i].Name" /></td>
+        <td><input asp-for="Items[i].Cost" type="number" min="0" /></td>
+        <td><input asp-for="Items[i].Points" type="number" min="1" /></td>
+        <td><input asp-for="Items[i].MaxTimes" type="number" min="1" /></td>
+      </tr>
+    }
+  </table>
+  <label>Tổng điểm cần đạt</label>
+  <input asp-for="Target" type="number" min="1" />
+  <p><button type="submit">Tính chi phí</button></p>
+</form>
+
+@if (Model.Error != null)
+{
+  <div class="err">@Model.Error</div>
+}
+else if (Model.Result is { } r)
+{
+  if (!r.Reachable)
+  {
+    <div class="err">Không thể đạt mục tiêu này với giới hạn số lần hiện tại.</div>
+  }
+  else
+  {
+    <div class="res">
+      <strong>Chi phí tối thiểu: @r.MinCost.ToString("N0")</strong><br />
+      Tổng điểm đạt được: @r.TotalPoints.ToString("N0")
+      <table>
+        <tr><th>Món</th><th>Số lần</th><th>Chi phí</th><th>Điểm</th></tr>
+        @foreach (var l in r.Lines)
+        {
+          <tr><td>@l.Name</td><td>@l.Times</td><td>@l.Cost.ToString("N0")</td><td>@l.Points.ToString("N0")</td></tr>
+        }
+      </table>
+    </div>
+  }
+}

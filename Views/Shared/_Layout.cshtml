@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Máy tính chi phí sự kiện</title>
+  <style>
+    :root{
+      --bg:#f4f5fa; --surface:#fff; --surface-2:#f8f8fc; --text:#1d1d2b; --muted:#6b6f80; --line:#e5e7ef;
+      --accent:#5b3fd6; --accent-weak:#efebff; --accent-text:#fff;
+      --ok:#1f8a4c; --ok-weak:#e6f6ec; --bad:#cf3553; --bad-weak:#fdecee; --gold:#b7791f; --gold-weak:#fff6e3;
+      --top:#1c1a2e; --top-text:#e9e7f7; --shadow:0 1px 2px rgba(20,20,40,.06),0 4px 16px rgba(20,20,40,.06);
+    }
+    @@media (prefers-color-scheme:dark){
+      :root{
+        --bg:#11111b; --surface:#1b1b29; --surface-2:#222233; --text:#ececf3; --muted:#9a9db0; --line:#2d2d42;
+        --accent:#8c76ff; --accent-weak:#2a2550; --accent-text:#fff;
+        --ok:#4fc983; --ok-weak:#163326; --bad:#ff6b85; --bad-weak:#3a1a22; --gold:#f0b44c; --gold-weak:#33281a;
+        --top:#0b0b13; --top-text:#e9e7f7; --shadow:0 1px 2px rgba(0,0,0,.3);
+      }
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth} [id]{scroll-margin-top:72px}
+    body{margin:0;font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text)}
+    a{color:var(--accent)}
+    .top{background:var(--top);color:var(--top-text);position:sticky;top:0;z-index:10}
+    .top .wrap{display:flex;align-items:center;gap:16px;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+    .brand{font-weight:700;letter-spacing:.2px;color:var(--top-text);text-decoration:none;margin-right:8px}
+    nav{display:flex;gap:4px;flex-wrap:wrap}
+    nav a{color:var(--top-text);opacity:.75;text-decoration:none;padding:6px 12px;border-radius:999px;font-size:14px}
+    nav a:hover{opacity:1;background:rgba(255,255,255,.08)}
+    nav a.active{opacity:1;background:var(--accent);color:var(--accent-text)}
+    .wrap{max-width:760px;margin:0 auto;padding:20px 16px}
+    .wrap.wide{max-width:1080px}
+    h1{margin:4px 0 4px;font-size:26px;line-height:1.25} h2{font-size:18px;margin:0 0 12px} h3{font-size:16px;margin:16px 0 8px}
+    table{border-collapse:collapse;width:100%;margin:12px 0}
+    th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left}
+    th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600}
+    label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:12px 0 6px}
+    input,select{font:inherit;color:var(--text);background:var(--surface);padding:9px 11px;width:100%;border:1px solid var(--line);border-radius:8px;outline:none;transition:border-color .15s,box-shadow .15s}
+    input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
+    button,.btn{font:inherit;font-weight:600;padding:10px 20px;background:var(--accent);color:var(--accent-text);border:0;border-radius:8px;cursor:pointer;margin-top:14px}
+    button:hover{filter:brightness(1.08)}
+    .lack{color:var(--bad);font-weight:600} .have{color:var(--ok);font-weight:600}
+    td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+    .star{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:2px} .stars{display:inline-block;min-height:28px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+    .grid .card{text-align:center}
+    .big{width:64px;height:64px;object-fit:contain}
+    .ic{width:26px;height:26px;object-fit:contain;vertical-align:middle;margin-right:6px}
+    .note,.muted{color:var(--muted);font-size:14px}
+    .res{background:var(--ok-weak);border:1px solid color-mix(in srgb,var(--ok) 30%,transparent);border-radius:12px;padding:14px 16px;margin-top:20px}
+    .err{background:var(--bad-weak);border:1px solid color-mix(in srgb,var(--bad) 30%,transparent);border-radius:12px;padding:14px 16px;margin-top:20px}
+    .scroll{overflow-x:auto}
+  </style>
+  @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+@{
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString();
+    string Act(string c) => c == ctrl ? "active" : "";
+}
+<header class="top">
+  <div class="wrap @(ViewData["Wide"] is true ? "wide" : "")">
+    <a class="brand" asp-controller="Gear" asp-action="Index">SpendCalc</a>
+    <nav>
+      <a class="@Act("Gear")" asp-controller="Gear" asp-action="Index">Nâng trang bị</a>
+      <a class="@Act("Brilliance")" asp-controller="Brilliance" asp-action="Index">Quang Huy</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap @(ViewData["Wide"] is true ? "wide" : "")">
+@RenderBody()
+</main>
+</body>
+</html>

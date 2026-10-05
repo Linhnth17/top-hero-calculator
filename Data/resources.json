@@ -1,0 +1,62 @@
+[
+  {
+    "id": "blue-crystal",
+    "name": "Tinh thể xanh",
+    "icon": "/images/resources/res1.png"
+  },
+  {
+    "id": "red-gem",
+    "name": "Ruby",
+    "icon": "/images/resources/res2.png"
+  },
+  {
+    "id": "star",
+    "name": "Ngôi sao",
+    "icon": "/images/resources/res3.png"
+  },
+  {
+    "id": "gold-bar",
+    "name": "Thỏi vàng",
+    "icon": "/images/resources/res4.png"
+  },
+  {
+    "id": "orange-stone",
+    "name": "Đá cam",
+    "icon": "/images/resources/res5.png"
+  },
+  {
+    "id": "puzzle",
+    "name": "Mảnh ghép",
+    "icon": "/images/resources/res6.png"
+  },
+  {
+    "id": "red-cube",
+    "name": "Khối đỏ cam",
+    "icon": "/images/resources/res7.png"
+  },
+  {
+    "id": "legendary",
+    "name": "Legendary",
+    "icon": "/images/resources/res5.png"
+  },
+  {
+    "id": "mythical",
+    "name": "Mythical",
+    "icon": "/images/resources/res7.png"
+  },
+  {
+    "id": "crystal-cluster",
+    "name": "Tinh chất rồng",
+    "icon": "/images/resources/res8.png"
+  },
+  {
+    "id": "wood",
+    "name": "Gỗ",
+    "icon": "/images/resources/res9.png"
+  },
+  {
+    "id": "stone",
+    "name": "Đá",
+    "icon": "/images/resources/res10.png"
+  }
+]

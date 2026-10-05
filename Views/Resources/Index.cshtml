@@ -1,0 +1,13 @@
+@model IReadOnlyList<ResourceDef>
+<h1>Nguyên liệu</h1>
+<p class="note">Danh sách dùng chung cho mọi bảng. Sửa tên và ảnh trong Data/resources.json.</p>
+<div class="grid">
+  @foreach (var r in Model)
+  {
+    <div class="card">
+      @if (r.Icon != null) { <img class="big" src="@r.Icon" alt="" /> }
+      <div><strong>@r.Name</strong></div>
+      <div class="note">@r.Id</div>
+    </div>
+  }
+</div>

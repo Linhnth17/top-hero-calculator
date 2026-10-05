@@ -1,0 +1,19 @@
+[
+  {
+    "id": "event-a",
+    "name": "Sự kiện A (số liệu mẫu, hãy thay bằng số thật)",
+    "items": [
+      { "name": "Món 1", "cost": 100, "points": 500, "maxTimes": 3 },
+      { "name": "Món 2", "cost": 50,  "points": 200, "maxTimes": null },
+      { "name": "Món 3", "cost": 400, "points": 2200, "maxTimes": 2 }
+    ]
+  },
+  {
+    "id": "event-b",
+    "name": "Sự kiện B (số liệu mẫu)",
+    "items": [
+      { "name": "Gói nhỏ", "cost": 10, "points": 40, "maxTimes": null },
+      { "name": "Gói lớn", "cost": 90, "points": 450, "maxTimes": 5 }
+    ]
+  }
+]
