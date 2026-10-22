@@ -1,7 +1,6 @@
 {
     "id":  "brilliance",
     "name":  "Quang Huy thành",
-    "note": "",
     "resourceIds":  [
                         "crystal-cluster",
                         "red-gem",
@@ -9,8 +8,6 @@
                         "stone"
                     ],
     "costMeaning":  "reach",
-    "levelLabel":  "level",
-    "showStars":  false,
     "rows":  [
                  {
                      "level":  41,

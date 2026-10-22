@@ -1,0 +1,24 @@
+[
+  {
+    "id": "thi-luyen-trang-bi",
+    "name": "Thí Luyện Trang Bị (Xu Thiên Gươm)",
+    "note": "Số liệu lấy từ đợt sự kiện ngày 20/06/2026. Các đợt sau có thể đổi hệ số điểm.",
+    "leaderboardMin": 400000,
+    "sources": [
+      { "resourceId": "blue-crystal", "label": "Rune Cường Hóa Trang Bị", "unit": "Rune", "per": 5, "points": 1 },
+      { "resourceId": "gold-bar", "label": "Vàng Thái Dương", "unit": "Vàng Thái Dương", "per": 1, "points": 50 },
+      { "resourceId": "legendary", "label": "Đá Đột Phá Trang Bị Cam", "unit": "Đá Cam", "per": 1, "points": 5000 },
+      { "resourceId": "mythical", "label": "Đá Đột Phá Trang Bị Đỏ", "unit": "Đá Đỏ", "per": 1, "points": 20000 },
+      { "resourceId": "titan-mark", "label": "Dấu Ấn Titan", "unit": "Dấu Ấn Titan", "per": 1, "points": 6000 },
+      { "resourceId": "diamond", "label": "Kim Cương (mua gói)", "unit": "Kim cương", "per": 1, "points": 10 }
+    ],
+    "milestones": [
+      { "points": 4000 },
+      { "points": 20000 },
+      { "points": 40000 },
+      { "points": 600000 },
+      { "points": 800000 },
+      { "points": 1000000 }
+    ]
+  }
+]

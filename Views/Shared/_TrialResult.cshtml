@@ -1,0 +1,189 @@
+@model (TrialEvent Event, TrialResult Result)
+@{
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    string N(long v) => v.ToString("N0", inv);
+    string Short(long v) => v >= 1_000_000 ? (v / 1_000_000.0).ToString("0.#", inv) + "M"
+        : v >= 1_000 ? (v / 1_000.0).ToString("0.#", inv) + "K" : v.ToString(inv);
+    var ev = Model.Event;
+    var r = Model.Result;
+    bool onBoard = r.Total >= ev.LeaderboardMin;
+    var rows = Enumerable.Range(0, ev.Sources.Count)
+        .Where(i => r.Amounts[i] > 0)
+        .OrderByDescending(i => r.SourcePoints[i])
+        .ToList();
+
+    // Thanh tiến độ chạy từ rương đầu tới rương cuối, các rương cách đều nhau như trong game
+    var ms = ev.Milestones;
+    int n = ms.Count, k = r.ReachedCount;
+    double fill = n <= 1 ? (k > 0 ? 100 : 0)
+        : k == 0 ? 0
+        : k >= n ? 100
+        : 100.0 * (k - 1 + (double)(r.Total - ms[k - 1].Points) / (ms[k].Points - ms[k - 1].Points)) / (n - 1);
+
+    // Màu rương xoay vòng: gỗ, bạc sọc xanh, vàng sọc đỏ
+    (string Body, string BodyHi, string Lid, string LidHi, string Band, string Lock)[] skins =
+    {
+        ("#a8622a", "#c47a3a", "#c9823c", "#e6a862", "#7d8796", "#ffd54a"),
+        ("#cfdbea", "#e8eff8", "#e3ecf7", "#ffffff", "#4f7fd0", "#ffd54a"),
+        ("#f2ad2c", "#ffc94e", "#ffcf55", "#fff0a8", "#d2452c", "#e2463a")
+    };
+}
+<style>
+    .trial{padding:0;overflow:hidden}
+    .trial .head{position:relative;padding:18px 20px 20px;color:#fff;
+        background:radial-gradient(120% 140% at 0% 0%,#5b7fd6 0%,#3a56b0 45%,#2a3f8f 100%)}
+    .trial .head::after{content:"";position:absolute;inset:auto 0 0 0;height:3px;background:linear-gradient(90deg,#ffd45e,#f0901f)}
+    .trial .label{font-size:14px;font-weight:700;opacity:.85;letter-spacing:.2px}
+    .trial .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:4px}
+    .trial .score{display:flex;align-items:center;gap:10px}
+    .trial .score b{font-size:34px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+    .trial .score small{font-size:15px;font-weight:700;opacity:.85}
+    .trial .coin{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;flex:none;
+        background:radial-gradient(circle at 35% 30%,#fff2b0 0%,#ffd04a 45%,#e09a14 100%);box-shadow:inset 0 -2px 0 rgba(138,74,12,.45),0 2px 0 rgba(0,0,0,.25)}
+    .trial .coin::after{content:"";width:12px;height:12px;border-radius:50%;border:2px solid rgba(138,74,12,.55)}
+    .trial .pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:14px;font-weight:700;
+        background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(2px)}
+    .trial .pill i{width:9px;height:9px;border-radius:50%;background:#ffb547;box-shadow:0 0 0 3px rgba(255,181,71,.25)}
+    .trial .pill.ok i{background:#7ee05a;box-shadow:0 0 0 3px rgba(126,224,90,.25)}
+
+    .trial .track{margin-top:14px;padding:12px 8px 10px;border-radius:14px;overflow-x:auto;
+        background:rgba(8,18,58,.3);box-shadow:inset 0 2px 8px rgba(0,0,0,.3),0 1px 0 rgba(255,255,255,.12)}
+    .trial .lane{position:relative;min-width:min-content}
+    .trial .rail{position:absolute;top:46px;height:12px;left:calc(100% / (2 * var(--n)));right:calc(100% / (2 * var(--n)));
+        border-radius:999px;background:#16245a;box-shadow:inset 0 2px 3px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.15)}
+    .trial .rail i{display:block;height:100%;border-radius:inherit;min-width:12px;
+        background:linear-gradient(180deg,#c4f57a 0%,#6fd146 55%,#46a62f 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.5)}
+    .trial .rail i.zero{min-width:0}
+    .trial .chests{position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(60px,1fr))}
+    .trial .chest{position:relative;display:flex;flex-direction:column;align-items:center}
+    .trial .chest svg{width:56px;height:49px;transition:transform .2s}
+    .trial .chest:not(.done) svg{filter:grayscale(.85) brightness(.8);opacity:.8}
+    .trial .chest.done svg{filter:drop-shadow(0 0 6px rgba(255,214,90,.7))}
+    .trial .chest.next svg{animation:chest-bob 1.6s ease-in-out infinite}
+    @@keyframes chest-bob{50%{transform:translateY(-4px)}}
+    .trial .chest .tick{position:absolute;top:-2px;left:calc(50% + 14px);width:20px;height:20px;border-radius:50%;display:grid;place-items:center;
+        font-size:12px;font-weight:900;color:#fff;background:#43b52f;border:2px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+    .trial .chest .pts{margin-top:14px;padding:1px 9px;border-radius:999px;font-size:13px;font-weight:800;color:#fff;
+        background:rgba(0,0,0,.32);font-variant-numeric:tabular-nums;white-space:nowrap}
+    .trial .chest.done .pts{background:#3f9a2b}
+    .trial .chest.next .pts{background:#e8841f}
+    .trial .chest .short{display:none}
+    @@media (max-width:560px){
+        .trial .track{padding:10px 4px 8px}
+        .trial .chests{grid-template-columns:repeat(var(--n),minmax(40px,1fr))}
+        .trial .chest svg{width:40px;height:35px}
+        .trial .rail{top:34px;height:9px}
+        .trial .chest .tick{width:16px;height:16px;font-size:10px;left:calc(50% + 9px)}
+        .trial .chest .pts{margin-top:12px;padding:0 6px;font-size:12px}
+        .trial .chest .full{display:none} .trial .chest .short{display:inline}
+    }
+    .trial .track-msg{margin:10px 0 0;font-size:14px;font-weight:700;text-align:center;opacity:.95}
+    .trial .track-msg strong{color:#ffd54a}
+
+    .trial .body{padding:14px 18px 16px}
+    .trial .body h3{margin:0 0 8px;font-size:16px}
+    .trial .src{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:2px 10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+    .trial .src:last-of-type{border-bottom:0}
+    .trial .src img,.trial .src .dot{width:30px;height:30px;object-fit:contain;grid-row:span 2}
+    .trial .src .dot{border-radius:50%;background:var(--surface-2);border:2px solid var(--line)}
+    .trial .src .name{font-weight:700;line-height:1.25}
+    .trial .src .name small{display:block;font-weight:600;color:var(--muted);font-size:13px}
+    .trial .src .pts{text-align:right;font-weight:800;font-size:17px;color:#b45d0e;font-variant-numeric:tabular-nums;grid-row:span 2}
+    .trial .src .bar{grid-column:2;height:6px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+    .trial .src .bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#ffd45e,#f0901f)}
+    .trial .empty{color:var(--muted)}
+    .trial .note{margin:10px 0 0;font-size:13px}
+</style>
+<div class="card trial">
+    <div class="head">
+        <div class="label">@ev.Name</div>
+        <div class="row">
+            <div class="score">
+                <span class="coin" aria-hidden="true"></span>
+                <b>@N(r.Total)</b><small>điểm</small>
+            </div>
+            @if (ev.LeaderboardMin > 0)
+            {
+                <span class="pill @(onBoard ? "ok" : "")">
+                    <i></i>
+                    @(onBoard ? "Đủ điểm lên BXH" : $"Còn {N(ev.LeaderboardMin - r.Total)} điểm để lên BXH")
+                </span>
+            }
+        </div>
+
+        @if (n > 0)
+        {
+            <div class="track">
+                <div class="lane" style="--n:@n">
+                    <div class="rail"><i class="@(fill <= 0 ? "zero" : "")" style="width:@(fill.ToString("0.#", inv))%"></i></div>
+                    <div class="chests">
+                        @for (int i = 0; i < n; i++)
+                        {
+                            var sk = skins[i % skins.Length];
+                            bool done = i < k, isNext = i == k;
+                            <div class="chest @(done ? "done" : "") @(isNext ? "next" : "")">
+                                <svg viewBox="0 0 64 56" aria-hidden="true">
+                                    <ellipse cx="32" cy="52" rx="24" ry="3.5" fill="rgba(0,0,0,.28)"/>
+                                    <rect x="7" y="24" width="50" height="26" rx="4" fill="@sk.Body" stroke="#3e230c" stroke-width="2.5"/>
+                                    <rect x="10" y="27" width="44" height="5" rx="2" fill="@sk.BodyHi"/>
+                                    <path d="M7 26 V20 Q7 6 32 6 Q57 6 57 20 V26 Z" fill="@sk.Lid" stroke="#3e230c" stroke-width="2.5"/>
+                                    <path d="M13 17 Q15 10 32 10 Q45 10 50 14" fill="none" stroke="@sk.LidHi" stroke-width="3" stroke-linecap="round"/>
+                                    <rect x="15" y="7" width="6" height="42" fill="@sk.Band" stroke="#3e230c" stroke-width="1.5"/>
+                                    <rect x="43" y="7" width="6" height="42" fill="@sk.Band" stroke="#3e230c" stroke-width="1.5"/>
+                                    <rect x="26" y="20" width="12" height="13" rx="3" fill="@sk.Lock" stroke="#3e230c" stroke-width="2"/>
+                                    <circle cx="32" cy="25.5" r="2" fill="#3e230c"/>
+                                    <rect x="31" y="26" width="2" height="4" fill="#3e230c"/>
+                                </svg>
+                                @if (done)
+                                {
+                                    <span class="tick">✓</span>
+                                }
+                                <span class="pts"><span class="full">@N(ms[i].Points)</span><span class="short">@Short(ms[i].Points)</span></span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <p class="track-msg">
+                @if (r.Next is { } next)
+                {
+                    <text>Còn <strong>@N(next.Points - r.Total)</strong> điểm tới rương <strong>@N(next.Points)</strong></text>
+                }
+                else
+                {
+                    <text>Đã mở hết rương · vượt mốc cuối <strong>@N(r.Total - ms[^1].Points)</strong> điểm</text>
+                }
+            </p>
+        }
+    </div>
+
+    <div class="body">
+        <h3>Điểm theo nguyên liệu</h3>
+        @if (rows.Count == 0)
+        {
+            <p class="empty">Chưa dùng nguyên liệu nào được tính điểm.</p>
+        }
+        @foreach (var i in rows)
+        {
+            var s = ev.Sources[i];
+            double share = r.Total > 0 ? 100.0 * r.SourcePoints[i] / r.Total : 0;
+            <div class="src">
+                @if (s.Resource.Icon != null)
+                {
+                    <img src="@s.Resource.Icon" alt="" />
+                }
+                else
+                {
+                    <span class="dot"></span>
+                }
+                <div class="name">@s.Name <small>@N(r.Amounts[i]) · @s.Rate</small></div>
+                <div class="pts">@N(r.SourcePoints[i])</div>
+                <div class="bar"><i style="width:@(share.ToString("0.#", inv))%"></i></div>
+            </div>
+        }
+        @if (ev.LeaderboardMin > 0)
+        {
+            <p class="note muted">Cần ít nhất @N(ev.LeaderboardMin) điểm để xuất hiện trên BXH. Toàn bộ điểm đều được tính vào BXH.</p>
+        }
+    </div>
+</div>

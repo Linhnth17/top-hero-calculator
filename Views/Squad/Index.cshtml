@@ -1,0 +1,453 @@
+@model SquadVm
+@{
+    ViewData["Wide"] = true;
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    string N(long v) => v.ToString("N0", inv);
+    var ev = Model.Event;
+    var res = Model.Table.Resources;
+    PointSource? SourceOf(string id) => ev.Sources.FirstOrDefault(s => s.ResourceId == id);
+    string TargetLabel(int st) => st <= SquadVm.MaxLevel ? $"Lv {st}" : $"Lv 40 · {SquadVm.WingsLabel(st - SquadVm.MaxLevel)}";
+}
+@section Head {
+<style>
+    /* Thanh trên: tab tướng bên trái, đặt nhanh bên phải */
+    .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    .tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .tabs button{margin:0;padding:3px 14px;font-size:16px;color:#fff3d6;border-radius:10px;
+        background:linear-gradient(180deg,#a8763f,#7d5126);border:2px solid #4b2d10;box-shadow:0 3px 0 #4b2d10;text-shadow:0 1px 0 #4b2d10}
+    .tabs button:active{box-shadow:0 1px 0 #4b2d10}
+    .tabs button.on{background:linear-gradient(180deg,#ffc94a,#f0901f);border-color:#8a4a0c;box-shadow:0 3px 0 #8a4a0c;text-shadow:0 1px 0 #8a4a0c}
+    .tabs button .badge{margin-left:6px;padding:0 7px;border-radius:999px;font-size:13px;background:#5cbf3c;color:#fff;text-shadow:none}
+    .quick{display:flex;align-items:center;gap:6px;padding:4px 4px 4px 12px;border-radius:12px;background:#ecd3a3;border:2px solid var(--line)}
+    .quick span{font-size:14px;font-weight:800;color:var(--frame-dark);white-space:nowrap}
+    .quick select{width:auto;padding:2px 8px;height:34px}
+    .quick button{margin:0;padding:0 12px;height:34px;font-size:15px;box-shadow:0 3px 0 #2d6a1a}
+    .hero-panel{display:none} .hero-panel.on{display:block}
+    @@media (max-width:640px){
+        .bar .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}
+        .bar .tabs button{padding:3px 2px;font-size:14px;white-space:nowrap}
+        .tabs button .badge{margin-left:3px;padding:0 5px;font-size:12px}
+        .quick{display:grid;grid-template-columns:auto 1fr 1fr;width:100%;padding:6px}
+        .quick select{width:100%;min-width:0}
+        .quick button{grid-column:1/-1}
+    }
+
+    .sets{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+    .sets span{font-size:14px;font-weight:800;color:var(--muted);margin-right:4px}
+    .sets button{margin:0;padding:2px;background:#fffaf0;border:3px solid var(--line);border-radius:12px;line-height:0;box-shadow:none}
+    .sets button:active{transform:none}
+    .sets button.on{border-color:#f0901f;box-shadow:0 0 0 2px #ffd45e}
+    .sets img{width:38px;height:38px;border-radius:8px}
+
+    /* Thẻ trang bị */
+    .pieces{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    @@media (max-width:900px){.pieces{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @@media (max-width:420px){.pieces{grid-template-columns:1fr}}
+    .piece{background:#fffaf0;border:2px solid var(--line);border-radius:14px;padding:0 10px 10px;box-shadow:0 3px 0 var(--line);font-variant-numeric:tabular-nums}
+    .piece .ptop{display:flex;align-items:center;gap:10px;margin:0 -10px 8px;padding:7px 10px;min-height:84px;border-radius:12px 12px 0 0;
+        background:linear-gradient(180deg,#f3d9a8,#e8c486);border-bottom:2px solid var(--line)}
+    .piece .ptop img{width:50px;height:50px;border-radius:10px;flex:none;border:2px solid var(--frame);box-shadow:0 2px 0 var(--frame-dark)}
+    .piece .ptop b{font-size:17px;color:var(--frame-dark);line-height:1.1}
+    .piece .f{display:grid;grid-template-columns:52px 1fr;align-items:center;gap:6px;margin-top:6px}
+    .piece .f label{margin:0;font-size:14px}
+    .piece select{padding:3px 8px}
+    .piece select.locked,.quick select.locked{opacity:.45;pointer-events:none}
+    .piece select.tg{border-color:#e9a13c;background:#fff4dc}
+    .piece .stars{display:flex;justify-content:flex-end;margin-top:4px}
+    .piece .stars:empty{display:none}
+    .stars .star{width:22px;height:22px;margin:0}
+    .piece.up{border-color:#8cc36a;box-shadow:0 3px 0 #8cc36a}
+    .piece.up .ptop{background:linear-gradient(180deg,#d9f0b8,#b9e08e);border-bottom-color:#8cc36a}
+    .piece.off{opacity:.55}
+    .piece small{display:block;color:var(--muted);font-size:14px;font-weight:700}
+    .piece .ptop > div{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+    .must{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:0 8px;border-radius:999px;font-size:12px;line-height:20px;font-weight:800;
+        color:#fff;white-space:nowrap;background:linear-gradient(180deg,#ffd45e,#f0901f);text-shadow:0 1px 0 #8a4a0c}
+    .must.ok{background:linear-gradient(180deg,#9be35f,#45a02b);text-shadow:0 1px 0 #2d6a1a}
+    .change{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:center;font-size:15px}
+    .change .stars{display:inline-flex;vertical-align:middle;margin:0 0 0 4px;min-height:0}
+    .change .k{color:var(--muted);font-size:13px;font-weight:700}
+
+    /* Ô nguyên liệu kiểu túi đồ */
+    .inv{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+    .slot{display:grid;grid-template-columns:46px minmax(0,1fr);gap:6px 10px;align-items:center;padding:8px 10px;margin:0;border-radius:12px;
+        background:#fffaf0;border:2px solid var(--line);font-size:16px;color:var(--text)}
+    label.slot{cursor:text} label.slot:focus-within{border-color:#f0901f}
+    .slot .ico{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;grid-row:span 2;
+        background:radial-gradient(circle at 50% 35%,#f7e3b8,#d9b47a);border:2px solid var(--frame);box-shadow:inset 0 -3px 0 rgba(90,56,22,.25)}
+    .slot .ico img{width:34px;height:34px;object-fit:contain}
+    .slot .nm{font-weight:800;line-height:1.15;color:var(--frame-dark);align-self:end}
+    .slot .nm small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+    .slot input{padding:3px 10px;text-align:right}
+    .slot .amt{display:flex;flex-direction:column;line-height:1.2}
+    .slot .used{font-size:18px;font-weight:800;color:#b45d0e;font-variant-numeric:tabular-nums}
+    .slot .left{font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+    .go{display:flex;justify-content:center;margin-top:16px}
+    .go button{font-size:20px;padding:8px 48px}
+
+    /* Target */
+    .tnote{margin-top:16px;padding:10px 14px;border-radius:12px;border:2px solid #e9a13c;background:#fff4dc;font-size:15px}
+    .tnote.bad{border-color:#e19a8a;background:var(--bad-weak)}
+    .tnote ul{margin:4px 0 0;padding-left:18px}
+    .chip{display:inline-block;margin:4px 4px 0 0;padding:1px 9px;border-radius:999px;font-size:13px;font-weight:800;background:#fff;border:2px solid #e19a8a;color:var(--bad)}
+
+    /* Tab cách nâng */
+    .plan-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}
+    @@media (max-width:560px){.plan-tabs{grid-template-columns:1fr}}
+    .plan-tabs button{margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;font-size:16px;
+        background:#fffaf0;color:var(--frame-dark);border:3px solid var(--line);border-radius:14px;box-shadow:0 3px 0 var(--line);text-shadow:none}
+    .plan-tabs button:active{box-shadow:0 1px 0 var(--line)}
+    .plan-tabs button.on{border-color:#f0901f;background:linear-gradient(180deg,#fff1cf,#fde3b0);box-shadow:0 3px 0 #8a4a0c}
+    .plan-tabs .pscore{font-size:18px;font-weight:800;color:#b45d0e;font-variant-numeric:tabular-nums}
+    .plan-tabs .pick{margin-left:4px;color:#e8841f}
+    .plan-panel{display:none} .plan-panel.on{display:block}
+    .plan-panel > .card{margin-top:16px}
+</style>
+}
+<h1>Thí Luyện Trang Bị</h1>
+
+<form method="get">
+    <input type="hidden" name="tab" value="@Model.Tab" class="tab-field" />
+    <div class="card">
+        <h2>Trang bị đội hình</h2>
+        <div class="bar">
+            <div class="tabs">
+                @for (int h = 0; h < SquadVm.Heroes; h++)
+                {
+                    <button type="button" data-tab="@h" class="@(h == Model.Tab ? "on" : "")">Tướng @(h + 1)</button>
+                }
+            </div>
+            <div class="quick">
+                <span>Đặt nhanh</span>
+                <select id="allLv" aria-label="Cấp">
+                    @for (int l = 0; l <= SquadVm.MaxLevel; l++)
+                    {
+                        <option value="@l" selected="@(l == SquadVm.MaxLevel)">Lv @l</option>
+                    }
+                </select>
+                <select id="allWg" aria-label="Sao">
+                    @for (int w = 0; w <= SquadVm.MaxWings; w++)
+                    {
+                        <option value="@w">@SquadVm.WingsLabel(w)</option>
+                    }
+                </select>
+                <button type="button" id="applyAll">Áp dụng</button>
+            </div>
+        </div>
+
+        @for (int h = 0; h < SquadVm.Heroes; h++)
+        {
+            int set = Model.Sets[h];
+            <div class="hero-panel @(h == Model.Tab ? "on" : "")" data-hero="@h">
+                <div class="sets">
+                    <span>Bộ đồ</span>
+                    <input type="hidden" name="sets" value="@set" />
+                    @for (int st = 1; st <= SquadVm.GearSets; st++)
+                    {
+                        <button type="button" data-set="@st" class="@(st == set ? "on" : "")" title="Bộ @st">
+                            <img src="@SquadVm.Icon(0, st)" alt="Bộ @st" />
+                        </button>
+                    }
+                </div>
+                <div class="pieces">
+                    @for (int s = 0; s < SquadVm.Slots; s++)
+                    {
+                        int k = h * SquadVm.Slots + s;
+                        var lv = Model.Levels[k];
+                        int wg = Model.Wings[k];
+                        <div class="piece" data-slot="@SquadVm.SlotDefs[s].Key">
+                            <div class="ptop">
+                                <img class="gear-ic" src="@SquadVm.Icon(s, set)" alt="" />
+                                <b>@SquadVm.SlotDefs[s].Name</b>
+                            </div>
+                            <div class="f">
+                                <label>Cấp</label>
+                                <select name="levels" class="lv">
+                                    <option value="" selected="@(lv == null)">Bỏ qua</option>
+                                    @for (int l = 0; l <= SquadVm.MaxLevel; l++)
+                                    {
+                                        <option value="@l" selected="@(lv == l)">Lv @l</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="f">
+                                <label>Sao</label>
+                                <select name="wings" class="wg">
+                                    @for (int w = 0; w <= SquadVm.MaxWings; w++)
+                                    {
+                                        <option value="@w" selected="@(wg == w)">@SquadVm.WingsLabel(w)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="stars" data-n="@wg"></div>
+                            <div class="f">
+                                <label>Target</label>
+                                <select name="targets" class="tg">
+                                    <option value="" selected="@(Model.Targets[k] == null)">—</option>
+                                    @for (int st = 1; st <= SquadVm.MaxLevel + SquadVm.MaxWings; st++)
+                                    {
+                                        <option value="@st" selected="@(Model.Targets[k] == st)">@TargetLabel(st)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="card" style="margin-top:16px">
+        <h2>Túi nguyên liệu</h2>
+        <div class="inv">
+            @for (int i = 0; i < res.Count; i++)
+            {
+                var src = SourceOf(res[i].Id);
+                long? have = i < Model.Own.Count ? Model.Own[i] : null;
+                <label class="slot">
+                    <span class="ico">@if (res[i].Icon != null) { <img src="@res[i].Icon" alt="" /> }</span>
+                    <span class="nm">@res[i].Name <small>@(src?.Rate ?? "Không tính điểm")</small></span>
+                    <input name="own" type="text" inputmode="numeric" class="money" placeholder="0" value="@(have?.ToString("N0", inv))" />
+                </label>
+            }
+            @for (int i = 0; i < Model.ExtraSources.Count; i++)
+            {
+                var s = Model.ExtraSources[i];
+                long? have = i < Model.Extra.Count ? Model.Extra[i] : null;
+                <label class="slot">
+                    <span class="ico">@if (s.Resource.Icon != null) { <img src="@s.Resource.Icon" alt="" /> }</span>
+                    <span class="nm">@s.Name <small>@s.Rate</small></span>
+                    <input name="extra" type="text" inputmode="numeric" class="money" placeholder="0" value="@(have?.ToString("N0", inv))" />
+                </label>
+            }
+        </div>
+    </div>
+
+    <div class="go"><button type="submit">Tính điểm</button></div>
+</form>
+
+@if (Model.TargetNeed is { } tneed && Model.TargetReached is { } reached)
+{
+    <div class="tnote @(Model.TargetLack != null ? "bad" : "")">
+        <strong>Target</strong>
+        <ul>
+            @foreach (var k in Enumerable.Range(0, Model.Targets.Count).Where(k => Model.Targets[k] != null))
+            {
+                int target = Model.Targets[k]!.Value;
+                int got = reached[k] ?? 0;
+                <li>
+                    Tướng @(k / SquadVm.Slots + 1) · @SquadVm.SlotDefs[k % SquadVm.Slots].Name → @TargetLabel(target):
+                    @if (got >= target)
+                    {
+                        <span class="have">đạt</span>
+                    }
+                    else
+                    {
+                        <span class="lack">mới tới @TargetLabel(got)</span>
+                    }
+                </li>
+            }
+        </ul>
+        @if (Model.TargetLack is { } tlack)
+        {
+            <div style="margin-top:4px">
+                Còn thiếu:
+                @for (int i = 0; i < res.Count; i++)
+                {
+                    if (tlack[i] > 0)
+                    {
+                        <span class="chip">@N(tlack[i]) @res[i].Name</span>
+                    }
+                }
+            </div>
+        }
+    </div>
+}
+
+@if (Model.Best is { } best)
+{
+    <div class="plan-tabs" id="result">
+        @foreach (var p in Model.Plans)
+        {
+            <button type="button" data-plan="@p.Key" class="@(p == best ? "on" : "")" title="@p.Desc">
+                <span>@p.Name@if (p == best) { <span class="pick">★</span> }</span>
+                <span class="pscore">@N(p.Result.Total)</span>
+            </button>
+        }
+    </div>
+
+    @foreach (var p in Model.Plans)
+    {
+        <div class="plan-panel @(p == best ? "on" : "")" data-plan="@p.Key">
+            <div style="margin-top:16px">
+                <partial name="_TrialResult" model="(ev, p.Result)" />
+            </div>
+
+            <div class="card">
+                <h2>Nâng tới đâu</h2>
+                <div class="bar">
+                    <div class="tabs">
+                        @for (int h = 0; h < SquadVm.Heroes; h++)
+                        {
+                            int ups = Enumerable.Range(h * SquadVm.Slots, SquadVm.Slots)
+                                .Sum(k => p.From[k] is int f ? p.To[k]!.Value - f : 0);
+                            <button type="button" data-tab="@h" class="@(h == Model.Tab ? "on" : "")">
+                                Tướng @(h + 1)@if (ups > 0) { <span class="badge">+@ups</span> }
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                @for (int h = 0; h < SquadVm.Heroes; h++)
+                {
+                    <div class="hero-panel @(h == Model.Tab ? "on" : "")" data-hero="@h">
+                        <div class="pieces">
+                            @for (int s = 0; s < SquadVm.Slots; s++)
+                            {
+                                int k = h * SquadVm.Slots + s;
+                                var icon = SquadVm.Icon(s, Model.Sets[h]);
+                                if (p.From[k] is not int f)
+                                {
+                                    <div class="piece off">
+                                        <div class="ptop"><img src="@icon" alt="" /><b>@SquadVm.SlotDefs[s].Name</b></div>
+                                        <small>Bỏ qua</small>
+                                    </div>
+                                    continue;
+                                }
+                                int t = p.To[k]!.Value;
+                                var (fl, fw) = SquadVm.FromStep(f);
+                                var (tl, tw) = SquadVm.FromStep(t);
+                                <div class="piece @(t > f ? "up" : "")">
+                                    <div class="ptop">
+                                        <img src="@icon" alt="" />
+                                        <div>
+                                            <b>@SquadVm.SlotDefs[s].Name</b>
+                                            <small>
+                                                @if (t == f)
+                                                {
+                                                    <text>Giữ nguyên</text>
+                                                }
+                                                else
+                                                {
+                                                    var parts = new List<string>();
+                                                    if (tl > fl) parts.Add($"+{tl - fl} cấp");
+                                                    if (tw > fw) parts.Add($"+{tw - fw} cánh");
+                                                    @string.Join(", ", parts)
+                                                }
+                                            </small>
+                                            @if (Model.Targets[k] is int tgt)
+                                            {
+                                                <span class="must @(t >= tgt ? "ok" : "")">Target @SquadVm.StepLabel(tgt)@(t >= tgt ? " ✓" : "")</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="change">
+                                        <span class="k">Từ</span><span>Lv @fl <span class="stars" data-n="@fw"></span></span>
+                                        <span class="k">Lên</span><span><strong>Lv @tl</strong> <span class="stars" data-n="@tw"></span></span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="card">
+                <h2>Nguyên liệu sử dụng</h2>
+                <div class="inv">
+                    @for (int i = 0; i < res.Count; i++)
+                    {
+                        <div class="slot">
+                            <span class="ico">@if (res[i].Icon != null) { <img src="@res[i].Icon" alt="" /> }</span>
+                            <span class="nm">@res[i].Name</span>
+                            <span class="amt"><span class="used">−@N(p.Spent[i])</span><span class="left">Còn @N(p.Remaining[i])</span></span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<script>
+    document.querySelectorAll('.money').forEach(el => {
+        const fmt = () => {
+            const digits = el.value.replace(/\D/g, '');
+            el.value = digits ? Number(digits).toLocaleString('en-US') : '';
+        };
+        el.addEventListener('input', fmt);
+        fmt();
+    });
+    document.querySelector('form').addEventListener('submit', () =>
+        document.querySelectorAll('.money').forEach(el => el.value = el.value.replace(/,/g, '')));
+
+    function renderStars(el, n) {
+        el.innerHTML = '';
+        n = parseInt(n) || 0;
+        const add = k => {
+            const img = document.createElement('img');
+            img.className = 'star';
+            img.src = '/images/stars/star' + k + '.png';
+            img.alt = '';
+            el.appendChild(img);
+        };
+        for (let i = 0; i < Math.floor(n / 5); i++) add(5);
+        if (n % 5) add(n % 5);
+    }
+    document.querySelectorAll('.stars[data-n]').forEach(el => renderStars(el, el.dataset.n));
+
+    // Tab tướng: phần nhập và phần kết quả cùng mở một tướng
+    function openTab(h) {
+        document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === String(h)));
+        document.querySelectorAll('.hero-panel').forEach(p => p.classList.toggle('on', p.dataset.hero === String(h)));
+        document.querySelector('.tab-field').value = h;
+    }
+    document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => openTab(b.dataset.tab)));
+
+    // Tab cách nâng
+    document.querySelectorAll('.plan-tabs button').forEach(b => b.addEventListener('click', () => {
+        document.querySelectorAll('.plan-tabs button').forEach(x => x.classList.toggle('on', x === b));
+        document.querySelectorAll('.plan-panel').forEach(p => p.classList.toggle('on', p.dataset.plan === b.dataset.plan));
+    }));
+
+    // Chọn bộ icon trang bị cho tướng
+    document.querySelectorAll('form .hero-panel').forEach(panel => {
+        panel.querySelectorAll('.sets button').forEach(btn => btn.addEventListener('click', () => {
+            const set = btn.dataset.set;
+            panel.querySelector('input[name=sets]').value = set;
+            panel.querySelectorAll('.sets button').forEach(b => b.classList.toggle('on', b === btn));
+            panel.querySelectorAll('.piece').forEach(p =>
+                p.querySelector('.gear-ic').src = '/images/gear/' + p.dataset.slot + set + '.png');
+        }));
+    });
+
+    // Chưa đạt Lv 40 thì chưa đột phá được: khóa ô sao về 0
+    function sync(el) {
+        const lv = el.querySelector('.lv'), wg = el.querySelector('.wg');
+        const locked = lv.value !== '@SquadVm.MaxLevel';
+        if (locked) wg.value = '0';
+        wg.classList.toggle('locked', locked);
+        const stars = el.querySelector('.stars');
+        if (stars) renderStars(stars, wg.value);
+    }
+    document.querySelectorAll('form .piece').forEach(piece => {
+        piece.querySelector('.lv').addEventListener('change', () => sync(piece));
+        piece.querySelector('.wg').addEventListener('change', () => sync(piece));
+        sync(piece);
+    });
+
+    // Đặt nhanh: ô sao chỉ dùng được khi chọn Lv 40
+    const quick = document.querySelector('.quick');
+    quick.querySelector('#allLv').classList.add('lv');
+    quick.querySelector('#allWg').classList.add('wg');
+    quick.querySelector('#allLv').addEventListener('change', () => sync(quick));
+    sync(quick);
+    document.getElementById('applyAll').addEventListener('click', () => {
+        const lv = document.getElementById('allLv').value, wg = document.getElementById('allWg').value;
+        document.querySelectorAll('form .piece').forEach(piece => {
+            piece.querySelector('.lv').value = lv;
+            piece.querySelector('.wg').value = wg;
+            sync(piece);
+        });
+    });
+</script>

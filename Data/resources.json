@@ -10,29 +10,9 @@
     "icon": "/images/resources/res2.png"
   },
   {
-    "id": "star",
-    "name": "Ngôi sao",
-    "icon": "/images/resources/res3.png"
-  },
-  {
     "id": "gold-bar",
-    "name": "Thỏi vàng",
+    "name": "Vàng Thái Dương",
     "icon": "/images/resources/res4.png"
-  },
-  {
-    "id": "orange-stone",
-    "name": "Đá cam",
-    "icon": "/images/resources/res5.png"
-  },
-  {
-    "id": "puzzle",
-    "name": "Mảnh ghép",
-    "icon": "/images/resources/res6.png"
-  },
-  {
-    "id": "red-cube",
-    "name": "Khối đỏ cam",
-    "icon": "/images/resources/res7.png"
   },
   {
     "id": "legendary",
@@ -42,7 +22,7 @@
   {
     "id": "mythical",
     "name": "Mythical",
-    "icon": "/images/resources/res7.png"
+    "icon": "/images/resources/res11.png"
   },
   {
     "id": "crystal-cluster",
@@ -58,5 +38,15 @@
     "id": "stone",
     "name": "Đá",
     "icon": "/images/resources/res10.png"
+  },
+  {
+    "id": "titan-mark",
+    "name": "Dấu Ấn Titan",
+    "icon": ""
+  },
+  {
+    "id": "diamond",
+    "name": "Kim cương",
+    "icon": ""
   }
 ]

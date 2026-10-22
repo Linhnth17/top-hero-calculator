@@ -21,14 +21,11 @@ public class GearTable
 {
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
-    public string Note { get; set; } = "";
     public List<string> ResourceIds { get; set; } = new();                  // đọc từ gear.json
     [JsonIgnore] public List<ResourceDef> Resources { get; set; } = new();  // nạp từ danh mục nguyên liệu
     /// "upgradeFrom": chi phí ở dòng L là để nâng TỪ level L lên L+1.
     /// "reach": chi phí ở dòng L là để ĐẠT level L.
     public string CostMeaning { get; set; } = "upgradeFrom";
-    public string LevelLabel { get; set; } = "level";   // "level", "cánh sao"...
-    public bool ShowStars { get; set; }                  // hiển thị ngôi sao theo số cánh
     public List<GearRow> Rows { get; set; } = new();
 }
 
@@ -45,19 +42,6 @@ public class GearReach
     public long[] Remaining { get; init; } = Array.Empty<long>();
     public int? LimitingIndex { get; init; }            // nguyên liệu thiếu đầu tiên ở bước kế tiếp
     public bool OutOfData { get; init; }                // dừng vì hết dữ liệu level
-}
-
-public class GearVm
-{
-    public List<GearTable> Tables { get; set; } = new();
-    public GearTable Table { get; set; } = new();
-    public int From { get; set; }
-    public int MaxLevel { get; set; }
-    public int Pieces { get; set; } = 4;
-    public long[] Totals { get; set; } = Array.Empty<long>();   // tổng chi phí từ 0 đến MaxLevel (đã nhân số món)
-    public List<long?> Own { get; set; } = new();
-    public GearReach? Reach { get; set; }
-    public string? Error { get; set; }
 }
 
 public class BrillianceVm

@@ -8,8 +8,6 @@
    "red-gem"
   ],
   "costMeaning": "reach",
-  "levelLabel": "level",
-  "showStars": false,
   "rows": [
    {
     "level": 1,
@@ -305,8 +303,6 @@
    "mythical"
   ],
   "costMeaning": "reach",
-  "levelLabel": "cánh sao",
-  "showStars": true,
   "rows": [
    {
     "level": 1,
