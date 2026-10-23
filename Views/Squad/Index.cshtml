@@ -24,7 +24,7 @@
     .quick button{margin:0;padding:0 12px;height:34px;font-size:15px;box-shadow:0 3px 0 #2d6a1a}
     .hero-panel{display:none} .hero-panel.on{display:block}
     @@media (max-width:640px){
-        .bar .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}
+        .bar .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
         .bar .tabs button{padding:3px 2px;font-size:14px;white-space:nowrap}
         .tabs button .badge{margin-left:3px;padding:0 5px;font-size:12px}
         .quick{display:grid;grid-template-columns:auto 1fr 1fr;width:100%;padding:6px}
@@ -104,7 +104,7 @@
     .plan-panel > .card{margin-top:16px}
 </style>
 }
-<h1>Thí Luyện Trang Bị</h1>
+<h1>Xu Thiên Gươm</h1>
 
 <form method="get">
     <input type="hidden" name="tab" value="@Model.Tab" class="tab-field" />
@@ -369,7 +369,7 @@
     }
 }
 
-<script>
+<script>(() => {
     document.querySelectorAll('.money').forEach(el => {
         const fmt = () => {
             const digits = el.value.replace(/\D/g, '');
@@ -450,4 +450,4 @@
             sync(piece);
         });
     });
-</script>
+})();</script>

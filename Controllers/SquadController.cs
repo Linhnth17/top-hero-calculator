@@ -14,7 +14,7 @@ public class SquadController(TrialStore store, GearStore gear) : Controller
         int count = SquadVm.Heroes * SquadVm.Slots;
         bool first = levels is not { Count: > 0 };
 
-        // Lần đầu mở trang: cả 16 món ở cấp 0, chưa có sao
+        // Lần đầu mở trang: mọi món ở cấp 0, chưa có sao
         var lv = Enumerable.Range(0, count)
             .Select(i => first ? 0 : i < levels!.Count && levels[i] is int v ? Math.Clamp(v, 0, SquadVm.MaxLevel) : (int?)null)
             .ToList();

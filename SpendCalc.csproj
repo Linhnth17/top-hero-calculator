@@ -4,4 +4,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WebMarkupMin.AspNetCore8" Version="2.22.5" />
+    <PackageReference Include="WebMarkupMin.NUglify" Version="2.22.5" />
+  </ItemGroup>
 </Project>

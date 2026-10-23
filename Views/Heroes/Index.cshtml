@@ -20,12 +20,32 @@
     .gset .fit{padding:4px 12px 10px;font-size:14px;color:var(--muted);font-weight:600}
 
     /* Bộ lọc */
-    .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-    .tabs{display:flex;gap:6px;flex-wrap:wrap}
-    .tabs button{margin:0;padding:3px 14px;font-size:15px;color:#fff3d6;border-radius:10px;
-        background:linear-gradient(180deg,#a8763f,#7d5126);border:2px solid #4b2d10;box-shadow:0 3px 0 #4b2d10;text-shadow:0 1px 0 #4b2d10}
-    .tabs button.on{background:linear-gradient(180deg,#ffc94a,#f0901f);border-color:#8a4a0c;box-shadow:0 3px 0 #8a4a0c;text-shadow:0 1px 0 #8a4a0c}
-    .tabs button img{width:20px;height:20px;border-radius:4px;vertical-align:-4px;margin-right:4px}
+    .filters{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;padding:12px 14px;border-radius:14px;background:#ecd3a3;border:2px solid var(--line)}
+    .frow{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:10px}
+    .flabel{font-size:15px;font-weight:800;color:var(--frame-dark)}
+    .seg{display:flex;flex-wrap:wrap;gap:4px;padding:4px;border-radius:12px;background:#fffaf0;border:2px solid var(--line);width:max-content;max-width:100%}
+    .seg button{margin:0;display:inline-flex;align-items:center;gap:6px;padding:4px 12px;font-size:15px;font-weight:700;border-radius:9px;
+        background:transparent;color:var(--frame-dark);border:0;box-shadow:none;text-shadow:none}
+    .seg button:hover{background:#f6e6c3;filter:none}
+    .seg button:active{transform:none;box-shadow:none}
+    .seg button i{font-style:normal;font-size:12px;font-weight:800;min-width:20px;padding:0 6px;border-radius:999px;background:#ecd3a3;color:var(--muted);text-align:center}
+    .seg button img{width:22px;height:22px;border-radius:5px;border:1px solid var(--frame)}
+    .seg button.on{background:linear-gradient(180deg,#ffc94a,#f0901f);color:#fff;text-shadow:0 1px 0 #8a4a0c;box-shadow:0 2px 0 #8a4a0c}
+    .seg button.on i{background:rgba(255,255,255,.3);color:#fff}
+    .frow.search{grid-template-columns:64px minmax(0,1fr) auto auto}
+    .frow.search input{padding:6px 12px}
+    .count{font-size:14px;font-weight:700;color:var(--muted);white-space:nowrap}
+    .count b{color:#b45d0e;font-size:16px}
+    .reset{margin:0;padding:4px 12px;font-size:14px;background:#fffaf0;color:var(--frame-dark);border:2px solid var(--line);box-shadow:0 2px 0 var(--line);text-shadow:none}
+    .reset:active{box-shadow:none}
+    @@media (max-width:640px){
+        .frow{grid-template-columns:1fr;gap:4px}
+        .seg{width:100%}
+        .seg button{flex:1 1 auto;justify-content:center;padding:4px 8px}
+        .frow.search{grid-template-columns:minmax(0,1fr) auto}
+        .frow.search input{grid-column:1 / -1}
+        .frow.search .flabel{display:none}
+    }
     .filters input{width:auto;flex:1;min-width:160px;padding:5px 12px}
 
     /* Thẻ tướng */
@@ -46,7 +66,6 @@
     .hero .alt img{width:24px;height:24px;border-radius:5px;border:1px solid var(--frame)}
     .hero .none{grid-column:2;grid-row:1 / span 2;font-size:13px;font-weight:700;color:var(--muted);max-width:92px;text-align:center}
     .empty{display:none;color:var(--muted);font-weight:700;padding:12px 0}
-    .src{margin:14px 0 0;font-size:13px}
 </style>
 }
 <h1>Tướng & Trang bị</h1>
@@ -79,21 +98,32 @@
 <div class="card" style="margin-top:16px">
     <h2>Tướng nên dùng bộ nào</h2>
     <div class="filters">
-        <div class="tabs" data-filter="faction">
-            <button type="button" class="on" data-v="">Tất cả</button>
-            @foreach (var f in data.Factions)
-            {
-                <button type="button" data-v="@f.Id">@f.Name</button>
-            }
+        <div class="frow">
+            <span class="flabel">Phe</span>
+            <div class="seg" data-filter="faction">
+                <button type="button" class="on" data-v="">Tất cả <i>@data.Heroes.Count</i></button>
+                @foreach (var f in data.Factions)
+                {
+                    <button type="button" data-v="@f.Id">@f.Name <i>@data.Heroes.Count(h => h.Faction == f.Id)</i></button>
+                }
+            </div>
         </div>
-        <div class="tabs" data-filter="set">
-            <button type="button" class="on" data-v="">Mọi bộ</button>
-            @foreach (var s in data.Sets)
-            {
-                <button type="button" data-v="@s.Id"><img src="@SquadVm.Icon(0, s.IconSet)" alt="" />@s.Name</button>
-            }
+        <div class="frow">
+            <span class="flabel">Bộ đồ</span>
+            <div class="seg" data-filter="set">
+                <button type="button" class="on" data-v="">Tất cả <i>@data.Heroes.Count</i></button>
+                @foreach (var s in data.Sets)
+                {
+                    <button type="button" data-v="@s.Id"><img src="@SquadVm.Icon(0, s.IconSet)" alt="" />@s.Name <i>@data.Heroes.Count(h => h.Set == s.Id)</i></button>
+                }
+            </div>
         </div>
-        <input id="q" type="search" placeholder="Tìm tướng..." />
+        <div class="frow search">
+            <span class="flabel">Tìm</span>
+            <input id="q" type="search" placeholder="Nhập tên tướng..." />
+            <span class="count"><b id="shown">@data.Heroes.Count</b> tướng</span>
+            <button type="button" id="reset" class="reset">Xoá lọc</button>
+        </div>
     </div>
 
     <div class="heroes">
@@ -129,10 +159,9 @@
         }
     </div>
     <p class="empty">Không có tướng nào khớp bộ lọc.</p>
-    <p class="src muted">Gợi ý tham khảo từ <a href="@data.Source" target="_blank" rel="noopener">topheroes.info</a>. Tướng chưa có tên tiếng Việt đang hiện tên tiếng Anh, bổ sung trong <code>Data/heroes.json</code>.</p>
 </div>
 
-<script>
+<script>(() => {
     const state = { faction: '', set: '', q: '' };
     const cards = [...document.querySelectorAll('.hero')];
     function apply() {
@@ -145,13 +174,22 @@
             if (ok) shown++;
         });
         document.querySelector('.empty').style.display = shown ? 'none' : 'block';
+        document.getElementById('shown').textContent = shown;
+        document.getElementById('reset').style.visibility = state.faction || state.set || state.q ? 'visible' : 'hidden';
     }
-    document.querySelectorAll('.tabs[data-filter]').forEach(group => {
-        group.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-            group.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-            state[group.dataset.filter] = b.dataset.v;
-            apply();
-        }));
+    function pick(group, b) {
+        group.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+        state[group.dataset.filter] = b.dataset.v;
+    }
+    document.querySelectorAll('.seg[data-filter]').forEach(group => {
+        group.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { pick(group, b); apply(); }));
     });
-    document.getElementById('q').addEventListener('input', e => { state.q = e.target.value.trim().toLowerCase(); apply(); });
-</script>
+    const q = document.getElementById('q');
+    q.addEventListener('input', () => { state.q = q.value.trim().toLowerCase(); apply(); });
+    document.getElementById('reset').addEventListener('click', () => {
+        document.querySelectorAll('.seg[data-filter]').forEach(group => pick(group, group.querySelector('button')));
+        q.value = ''; state.q = '';
+        apply();
+    });
+    apply();
+})();</script>

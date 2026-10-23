@@ -292,7 +292,7 @@
     </div>
 </section>
 
-<script>
+<script>(() => {
     document.querySelectorAll('.money').forEach(el => {
         const fmt = () => {
             const digits = el.value.replace(/\D/g, '');
@@ -303,4 +303,4 @@
     });
     document.querySelector('form.est').addEventListener('submit', () =>
         document.querySelectorAll('.money').forEach(el => el.value = el.value.replace(/,/g, '')));
-</script>
+})();</script>

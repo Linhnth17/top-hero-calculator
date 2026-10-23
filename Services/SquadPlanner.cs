@@ -2,7 +2,7 @@ using SpendCalc.Models;
 
 namespace SpendCalc.Services;
 
-/// Gợi ý nâng nhiều món (ví dụ 16 món của 1 đội hình) để được nhiều điểm sự kiện nhất.
+/// Gợi ý nâng nhiều món (ví dụ 24 món của đội hình 6 tướng) để được nhiều điểm sự kiện nhất.
 /// Mỗi món vẫn nâng lần lượt từng bước theo bảng; chỉ khác nhau ở thứ tự chọn món để nâng.
 public static class SquadPlanner
 {

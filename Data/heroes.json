@@ -2,13 +2,13 @@
   "source": "https://www.topheroes.info/gear-guide.php",
   "factions": [
     { "id": "league", "name": "Liên Minh" },
-    { "id": "nature", "name": "Tự Nhiên" },
+    { "id": "nature", "name": "Thiên Nhiên" },
     { "id": "horde", "name": "Bộ Tộc" }
   ],
   "sets": [
     {
       "id": "knight",
-      "name": "Quang Vinh Kỵ Sĩ",
+      "name": "Kỵ Sĩ",
       "en": "Glory of the Knight",
       "iconSet": 3,
       "bonuses": [ "Tấn Công Trang Bị +40%", "HP Trang Bị +80%", "Tăng Sát Thương Skill +8%" ],
@@ -24,7 +24,7 @@
     },
     {
       "id": "titan",
-      "name": "Sức Mạnh Titan",
+      "name": "Đại Đế",
       "en": "Titan's Might",
       "iconSet": 1,
       "bonuses": [ "Tấn Công Trang Bị +80%", "Tăng Sát Thương +6%" ],
@@ -32,13 +32,13 @@
     }
   ],
   "heroes": [
-    { "en": "Adjudicator", "vi": "Thẩm Phán", "faction": "league", "rarity": "legendary", "set": "blood", "alt": [] },
-    { "en": "Artificer", "vi": "Thợ Phép", "faction": "league", "rarity": "mythic", "set": "knight", "alt": [ "blood" ] },
+    { "en": "Adjudicator", "faction": "league", "rarity": "legendary", "set": "blood", "alt": [] },
+    { "en": "Artificer", "faction": "league", "rarity": "mythic", "set": "knight", "alt": [ "blood" ] },
     { "en": "Astrologer", "faction": "league", "rarity": "legendary", "set": "titan", "alt": [] },
-    { "en": "Bard", "vi": "Thi Nhân Tự Do", "faction": "league", "rarity": "legendary", "set": "blood", "alt": [ "knight" ] },
+    { "en": "Bard", "faction": "league", "rarity": "legendary", "set": "blood", "alt": [ "knight" ] },
     { "en": "Bishop", "faction": "league", "rarity": "mythic", "set": "knight", "alt": [ "titan" ] },
     { "en": "Hostess", "faction": "league", "rarity": "legendary", "set": "blood", "alt": [] },
-    { "en": "Nun", "vi": "Tu Nữ", "faction": "league", "rarity": "legendary", "set": "blood", "alt": [ "knight" ] },
+    { "en": "Nun", "faction": "league", "rarity": "legendary", "set": "blood", "alt": [ "knight" ] },
     { "en": "Paragon", "faction": "league", "rarity": "mythic", "set": "knight", "alt": [ "titan" ] },
     { "en": "Pyromancer", "faction": "league", "rarity": "legendary", "set": "knight", "alt": [ "titan" ] },
     { "en": "Rose Princess", "faction": "league", "rarity": "mythic", "set": "blood", "alt": [ "knight" ] },
@@ -59,7 +59,7 @@
     { "en": "Windwalker", "faction": "nature", "rarity": "legendary", "set": "titan", "alt": [ "knight" ] },
 
     { "en": "Barbarian", "faction": "horde", "rarity": "legendary", "set": "blood", "alt": [ "titan" ] },
-    { "en": "Beastmaster", "vi": "Nhà Luyện Thú", "faction": "horde", "rarity": "mythic", "set": "blood", "alt": [ "knight" ] },
+    { "en": "Beastmaster", "faction": "horde", "rarity": "mythic", "set": "blood", "alt": [ "knight" ] },
     { "en": "Desert Prince", "faction": "horde", "rarity": "mythic", "set": "knight", "alt": [ "titan" ] },
     { "en": "Headhunter", "faction": "horde", "rarity": "legendary", "set": null, "alt": [] },
     { "en": "Shadow Priest", "faction": "horde", "rarity": "mythic", "set": null, "alt": [] },
@@ -67,7 +67,7 @@
     { "en": "Soulmancer", "faction": "horde", "rarity": "legendary", "set": "blood", "alt": [ "knight" ] },
     { "en": "Storm Maiden", "faction": "horde", "rarity": "mythic", "set": "titan", "alt": [ "knight" ] },
     { "en": "Swordmaster", "faction": "horde", "rarity": "legendary", "set": "blood", "alt": [ "titan" ] },
-    { "en": "Wanderer", "vi": "Du Sĩ", "faction": "horde", "rarity": "mythic", "set": "titan", "alt": [ "knight" ] },
+    { "en": "Wanderer", "faction": "horde", "rarity": "mythic", "set": "titan", "alt": [ "knight" ] },
     { "en": "Warlock", "faction": "horde", "rarity": "legendary", "set": "knight", "alt": [ "blood" ] },
     { "en": "Wilderness Hunter", "faction": "horde", "rarity": "legendary", "set": "titan", "alt": [] },
     { "en": "Witch", "faction": "horde", "rarity": "mythic", "set": "knight", "alt": [ "blood" ] }

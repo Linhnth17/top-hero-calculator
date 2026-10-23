@@ -16,7 +16,7 @@ public class SquadPlan
 
 public class SquadVm
 {
-    public const int Heroes = 4, Slots = 4;
+    public const int Heroes = 6, Slots = 4;
     public const int MaxLevel = 40;    // cấp tối đa, đạt cấp này mới đột phá sao
     public const int MaxWings = 25;    // 5 sao × 5 cánh
     public const int GearSets = 3;     // số mẫu icon cho mỗi loại đồ
