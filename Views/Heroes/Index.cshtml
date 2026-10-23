@@ -1,0 +1,157 @@
+@model SpendCalc.Services.HeroStore
+@{
+    ViewData["Wide"] = true;
+    var data = Model.Data;
+    string RarityName(string r) => r == "mythic" ? "Thần Thoại" : "Huyền Thoại";
+}
+@section Head {
+<style>
+    /* Thẻ bộ trang bị */
+    .sets3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    @@media (max-width:820px){.sets3{grid-template-columns:1fr}}
+    .gset{background:#fffaf0;border:2px solid var(--line);border-radius:14px;box-shadow:0 3px 0 var(--line);overflow:hidden}
+    .gset .hd{padding:8px 12px;background:linear-gradient(180deg,#f3d9a8,#e8c486);border-bottom:2px solid var(--line)}
+    .gset .hd b{display:block;font-size:18px;color:var(--frame-dark);line-height:1.15}
+    .gset .hd small{color:var(--muted);font-weight:700}
+    .gset .pcs{display:flex;gap:6px;padding:10px 12px 4px}
+    .gset .pcs img{width:46px;height:46px;border-radius:9px;border:2px solid var(--frame);box-shadow:0 2px 0 var(--frame-dark)}
+    .gset ul{margin:6px 0 0;padding:0 12px;list-style:none}
+    .gset li{display:inline-block;margin:0 4px 4px 0;padding:0 8px;border-radius:999px;font-size:13px;font-weight:800;background:#e2f2cc;color:#2f6e1f;border:1px solid #9ccb7c}
+    .gset .fit{padding:4px 12px 10px;font-size:14px;color:var(--muted);font-weight:600}
+
+    /* Bộ lọc */
+    .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+    .tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .tabs button{margin:0;padding:3px 14px;font-size:15px;color:#fff3d6;border-radius:10px;
+        background:linear-gradient(180deg,#a8763f,#7d5126);border:2px solid #4b2d10;box-shadow:0 3px 0 #4b2d10;text-shadow:0 1px 0 #4b2d10}
+    .tabs button.on{background:linear-gradient(180deg,#ffc94a,#f0901f);border-color:#8a4a0c;box-shadow:0 3px 0 #8a4a0c;text-shadow:0 1px 0 #8a4a0c}
+    .tabs button img{width:20px;height:20px;border-radius:4px;vertical-align:-4px;margin-right:4px}
+    .filters input{width:auto;flex:1;min-width:160px;padding:5px 12px}
+
+    /* Thẻ tướng */
+    .heroes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+    .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:10px 12px;border-radius:14px;
+        background:#fffaf0;border:2px solid var(--line);border-left-width:6px;box-shadow:0 3px 0 var(--line)}
+    .hero.mythic{border-left-color:#d2452c} .hero.legendary{border-left-color:#f0a020}
+    .hero .nm{font-size:17px;font-weight:800;color:var(--frame-dark);line-height:1.15}
+    .hero .nm{display:flex;align-items:center;gap:10px}
+    .hero .nm small{display:block;font-size:13px;font-weight:600;color:var(--muted)}
+    .hero .pt{width:52px;height:52px;flex:none;object-fit:cover;object-position:top;border-radius:10px;background:#e9cf9c;border:2px solid var(--frame);box-shadow:0 2px 0 var(--frame-dark)}
+    .hero .meta{grid-column:1;font-size:13px;font-weight:700;color:var(--muted)}
+    .hero .meta .rar.mythic{color:#c2361f} .hero .meta .rar.legendary{color:#b9700a}
+    .hero .rec{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;max-width:92px}
+    .hero .rec img{width:44px;height:44px;border-radius:9px;border:2px solid var(--frame);box-shadow:0 2px 0 var(--frame-dark)}
+    .hero .rec span{font-size:12px;font-weight:800;color:var(--frame-dark);line-height:1.1}
+    .hero .alt{grid-column:1 / -1;display:flex;align-items:center;gap:4px;margin-top:4px;padding-top:6px;border-top:1px dashed var(--line);font-size:13px;font-weight:700;color:var(--muted)}
+    .hero .alt img{width:24px;height:24px;border-radius:5px;border:1px solid var(--frame)}
+    .hero .none{grid-column:2;grid-row:1 / span 2;font-size:13px;font-weight:700;color:var(--muted);max-width:92px;text-align:center}
+    .empty{display:none;color:var(--muted);font-weight:700;padding:12px 0}
+    .src{margin:14px 0 0;font-size:13px}
+</style>
+}
+<h1>Tướng & Trang bị</h1>
+
+<div class="card">
+    <h2>Bộ trang bị</h2>
+    <div class="sets3">
+        @foreach (var s in data.Sets)
+        {
+            <div class="gset">
+                <div class="hd"><b>@s.Name</b><small>@s.En</small></div>
+                <div class="pcs">
+                    @for (int slot = 0; slot < SquadVm.Slots; slot++)
+                    {
+                        <img src="@SquadVm.Icon(slot, s.IconSet)" alt="@SquadVm.SlotDefs[slot].Name" title="@SquadVm.SlotDefs[slot].Name" />
+                    }
+                </div>
+                <ul>
+                    @foreach (var b in s.Bonuses)
+                    {
+                        <li>@b</li>
+                    }
+                </ul>
+                <div class="fit">@s.Fit</div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+    <h2>Tướng nên dùng bộ nào</h2>
+    <div class="filters">
+        <div class="tabs" data-filter="faction">
+            <button type="button" class="on" data-v="">Tất cả</button>
+            @foreach (var f in data.Factions)
+            {
+                <button type="button" data-v="@f.Id">@f.Name</button>
+            }
+        </div>
+        <div class="tabs" data-filter="set">
+            <button type="button" class="on" data-v="">Mọi bộ</button>
+            @foreach (var s in data.Sets)
+            {
+                <button type="button" data-v="@s.Id"><img src="@SquadVm.Icon(0, s.IconSet)" alt="" />@s.Name</button>
+            }
+        </div>
+        <input id="q" type="search" placeholder="Tìm tướng..." />
+    </div>
+
+    <div class="heroes">
+        @foreach (var h in data.Heroes.OrderBy(h => h.Rarity == "mythic" ? 0 : 1).ThenBy(h => h.Name))
+        {
+            var main = Model.Set(h.Set);
+            <div class="hero @h.Rarity" data-faction="@h.Faction" data-set="@h.Set"
+                 data-name="@($"{h.Name} {h.En}".ToLowerInvariant())">
+                <div class="nm"><img class="pt" src="@h.Portrait" alt="" loading="lazy" /><span>@h.Name @if (h.Vi != null) { <small>@h.En</small> }</span></div>
+                <div class="meta">@Model.FactionName(h.Faction) · <span class="rar @h.Rarity">@RarityName(h.Rarity)</span></div>
+                @if (main != null)
+                {
+                    <div class="rec" title="@main.En">
+                        <img src="@SquadVm.Icon(0, main.IconSet)" alt="" />
+                        <span>@main.Name</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="none">Chưa có gợi ý</div>
+                }
+                @if (h.Alt.Count > 0)
+                {
+                    <div class="alt">
+                        Thay thế:
+                        @foreach (var a in h.Alt.Select(Model.Set).OfType<GearSet>())
+                        {
+                            <img src="@SquadVm.Icon(0, a.IconSet)" alt="" title="@a.Name" /><span>@a.Name</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    <p class="empty">Không có tướng nào khớp bộ lọc.</p>
+    <p class="src muted">Gợi ý tham khảo từ <a href="@data.Source" target="_blank" rel="noopener">topheroes.info</a>. Tướng chưa có tên tiếng Việt đang hiện tên tiếng Anh, bổ sung trong <code>Data/heroes.json</code>.</p>
+</div>
+
+<script>
+    const state = { faction: '', set: '', q: '' };
+    const cards = [...document.querySelectorAll('.hero')];
+    function apply() {
+        let shown = 0;
+        cards.forEach(c => {
+            const ok = (!state.faction || c.dataset.faction === state.faction)
+                && (!state.set || c.dataset.set === state.set)
+                && (!state.q || c.dataset.name.includes(state.q));
+            c.style.display = ok ? '' : 'none';
+            if (ok) shown++;
+        });
+        document.querySelector('.empty').style.display = shown ? 'none' : 'block';
+    }
+    document.querySelectorAll('.tabs[data-filter]').forEach(group => {
+        group.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+            group.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+            state[group.dataset.filter] = b.dataset.v;
+            apply();
+        }));
+    });
+    document.getElementById('q').addEventListener('input', e => { state.q = e.target.value.trim().toLowerCase(); apply(); });
+</script>

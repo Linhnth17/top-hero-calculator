@@ -7,6 +7,7 @@ builder.Services.AddSingleton<ResourceCatalog>();
 builder.Services.AddSingleton<GearStore>();
 builder.Services.AddSingleton<BrillianceStore>();
 builder.Services.AddSingleton<TrialStore>();
+builder.Services.AddSingleton<HeroStore>();
 
 var app = builder.Build();
 app.UseStaticFiles();
